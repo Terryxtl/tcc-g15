@@ -1,20 +1,11 @@
 from typing import Callable, Optional, Tuple, Union
 from PySide6 import QtCore, QtWidgets
 
-
 class QRadioButtonSet(QtWidgets.QWidget):
     _buttons: dict[str, QtWidgets.QRadioButton]
     _userCallback: Optional[Callable[[str], None]]
 
-    def __init__(
-        self,
-        parent: Optional[QtWidgets.QWidget],
-        title: Optional[str],
-        options: list[Tuple[str, str]],
-        layout: Union[
-            QtWidgets.QHBoxLayout, QtWidgets.QVBoxLayout
-        ] = QtWidgets.QHBoxLayout(),
-    ) -> None:
+    def __init__(self, parent: Optional[QtWidgets.QWidget], title: Optional[str], options: list[Tuple[str, str]], layout: Union[QtWidgets.QHBoxLayout, QtWidgets.QVBoxLayout] = QtWidgets.QHBoxLayout()) -> None:
         super().__init__(parent)
         if len(options) == 0:
             raise RuntimeError('"options" list length can not be 0')
@@ -49,6 +40,6 @@ class QRadioButtonSet(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _onClicked(self):
-        rb = self.sender()  # type: QtWidgets.QRadioButton
+        rb = self.sender() # type: QtWidgets.QRadioButton
         if self._userCallback and rb.isChecked():
             self._userCallback(rb._value)

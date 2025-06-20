@@ -1,17 +1,14 @@
 from typing import Optional, NewType
 from Backend.AWCCWmiWrapper import AWCCWmiWrapper
-import wmi  # type: ignore
-
+import wmi # type: ignore
 
 class NoAWCCWMIClass(Exception):
     def __init__(self) -> None:
         super().__init__("AWCC WMI class not found in the system")
 
-
 class CannotInstAWCCWMI(Exception):
     def __init__(self) -> None:
         super().__init__("Couldn't instantiate AWCC WMI class")
-
 
 class AWCCThermal:
     Mode = AWCCWmiWrapper.ThermalMode
@@ -33,18 +30,14 @@ class AWCCThermal:
                 raise CannotInstAWCCWMI()
         self._awcc = awcc
         self._fanIdsAndRelatedSensorsIds = self._awcc.GetFanIdsAndRelatedSensorsIds()
-        self._fanIds = [id for id, _ in self._fanIdsAndRelatedSensorsIds]
-        self._sensorIds = [
-            id for _, ids in self._fanIdsAndRelatedSensorsIds for id in ids
-        ]
+        self._fanIds = [ id for id, _ in self._fanIdsAndRelatedSensorsIds ]
+        self._sensorIds = [ id for _, ids in self._fanIdsAndRelatedSensorsIds for id in ids ]
 
     def getAllTemp(self) -> list[Optional[int]]:
-        return [
-            self._awcc.GetSensorTemperature(sensorId) for sensorId in self._sensorIds
-        ]
+        return [ self._awcc.GetSensorTemperature(sensorId) for sensorId in self._sensorIds ]
 
     def getAllFanRPM(self) -> list[Optional[int]]:
-        return [self._awcc.GetFanRPM(fanId) for fanId in self._fanIds]
+        return [ self._awcc.GetFanRPM(fanId) for fanId in self._fanIds ]
 
     def setAllFanSpeed(self, speed: int) -> bool:
         res = True
@@ -53,12 +46,11 @@ class AWCCThermal:
                 res = False
         return res
 
+
     def getFanRelatedTemp(self, fanIdx: int) -> Optional[int]:
         if fanIdx >= len(self._fanIdsAndRelatedSensorsIds):
             return None
-        return self._awcc.GetSensorTemperature(
-            self._fanIdsAndRelatedSensorsIds[fanIdx][1][0]
-        )
+        return self._awcc.GetSensorTemperature(self._fanIdsAndRelatedSensorsIds[fanIdx][1][0])
 
     def getFanRPM(self, fanIdx: int) -> Optional[int]:
         if fanIdx >= len(self._fanIdsAndRelatedSensorsIds):
@@ -68,9 +60,7 @@ class AWCCThermal:
     def setFanSpeed(self, fanIdx: int, speed: int) -> bool:
         if fanIdx >= len(self._fanIdsAndRelatedSensorsIds):
             return False
-        return self._awcc.SetAddonSpeedPercent(
-            self._fanIdsAndRelatedSensorsIds[fanIdx][0], speed
-        )
+        return self._awcc.SetAddonSpeedPercent(self._fanIdsAndRelatedSensorsIds[fanIdx][0], speed)
 
     def setMode(self, mode: ModeType) -> bool:
         return self._awcc.ApplyThermalMode(mode)
