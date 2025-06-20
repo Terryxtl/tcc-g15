@@ -1,5 +1,6 @@
 from typing import Optional
-import wmi # type: ignore
+import wmi
+
 
 class DetectHardware:
     CPUFanIdx = 0
@@ -12,10 +13,15 @@ class DetectHardware:
         if fanIdx == self.CPUFanIdx:
             wmiClass = self._wmi.Win32_Processor
             wmiInst = wmiClass()[0]
-            return wmiInst.Name.strip() if hasattr(wmiInst, 'Name') else None
+            return wmiInst.Name.strip() if hasattr(wmiInst, "Name") else None
         elif fanIdx == self.GPUFanIdx:
             wmiClass = self._wmi.Win32_VideoController
-            wmiInst = max(wmiClass(), key=lambda inst: inst.AdapterRAM & 0xFFFFFFFF if hasattr(inst, 'AdapterRAM') and isinstance(inst.AdapterRAM, int) else 0) # Assume the one with the largest memory is the main GPU
-            return wmiInst.Name.strip() if hasattr(wmiInst, 'Name') else None
+            wmiInst = max(
+                wmiClass(),
+                key=lambda inst: inst.AdapterRAM & 0xFFFFFFFF
+                if hasattr(inst, "AdapterRAM") and isinstance(inst.AdapterRAM, int)
+                else 0,
+            )  # Assume the one with the largest memory is the main GPU
+            return wmiInst.Name.strip() if hasattr(wmiInst, "Name") else None
         else:
             return None

@@ -3,8 +3,16 @@ from PySide6 import QtCore, QtWidgets
 from GUI.QGauge import QGauge
 from GUI.AppColors import Colors
 
+
 class ThermalUnitWidget(QtWidgets.QWidget):
-    def __init__(self, parent: Optional[QtWidgets.QWidget], tempMinMax: Tuple[int,int], tempColorLimits: Optional[Tuple[int,int]], fanMinMax: Tuple[int,int], sliderMaxAndTick: Tuple[int,int]):
+    def __init__(
+        self,
+        parent: Optional[QtWidgets.QWidget],
+        tempMinMax: Tuple[int, int],
+        tempColorLimits: Optional[Tuple[int, int]],
+        fanMinMax: Tuple[int, int],
+        sliderMaxAndTick: Tuple[int, int],
+    ):
         super().__init__(parent)
 
         self._title = QtWidgets.QLabel(self)
@@ -14,9 +22,11 @@ class ThermalUnitWidget(QtWidgets.QWidget):
         self._subTitle.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self._subTitle.setToolTip("Triple left-click and Crtl+C to copy")
 
-        self._tempBar, _tempBarLabel = self._makeGaugeWithLabel(tempMinMax, ' °C', tempColorLimits)
+        self._tempBar, _tempBarLabel = self._makeGaugeWithLabel(
+            tempMinMax, " °C", tempColorLimits
+        )
 
-        self._fanBar, _fanBarLabel = self._makeGaugeWithLabel(fanMinMax, ' RPM')
+        self._fanBar, _fanBarLabel = self._makeGaugeWithLabel(fanMinMax, " RPM")
 
         self._speedSliderCallback = None
         self._speedSlider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal, self)
@@ -28,29 +38,42 @@ class ThermalUnitWidget(QtWidgets.QWidget):
         self._speedSliderDebounce.setInterval(500)
         self._speedSliderDebounce.setSingleShot(True)
         self._speedSliderDebounce.timeout.connect(self._onSpeedSliderChange)
-        self._speedSlider.valueChanged.connect(lambda: self._speedSliderDebounce.start())
+        self._speedSlider.valueChanged.connect(
+            lambda: self._speedSliderDebounce.start()
+        )
 
-        grid = QtWidgets.QGridLayout() # type: QtWidgets.QWidget
-        grid.addWidget(self._title,         0, 0, QtCore.Qt.AlignCenter)
-        grid.addWidget(self._subTitle,      1, 0, 1, 2, QtCore.Qt.AlignLeft)
-        grid.addWidget(self._tempBar,       2, 0, QtCore.Qt.AlignTop)
-        grid.addWidget(_tempBarLabel,       2, 1, QtCore.Qt.AlignLeft)
-        grid.addWidget(self._fanBar,        3, 0, QtCore.Qt.AlignTop)
-        grid.addWidget(_fanBarLabel,        3, 1, QtCore.Qt.AlignLeft)
-        grid.addWidget(self._speedSlider,   4, 0, QtCore.Qt.AlignTop)
-        grid.addWidget(_speedSliderLabel,   4, 1, QtCore.Qt.AlignLeft)
+        grid = QtWidgets.QGridLayout()  # type: QtWidgets.QWidget
+        grid.addWidget(self._title, 0, 0, QtCore.Qt.AlignCenter)
+        grid.addWidget(self._subTitle, 1, 0, 1, 2, QtCore.Qt.AlignLeft)
+        grid.addWidget(self._tempBar, 2, 0, QtCore.Qt.AlignTop)
+        grid.addWidget(_tempBarLabel, 2, 1, QtCore.Qt.AlignLeft)
+        grid.addWidget(self._fanBar, 3, 0, QtCore.Qt.AlignTop)
+        grid.addWidget(_fanBarLabel, 3, 1, QtCore.Qt.AlignLeft)
+        grid.addWidget(self._speedSlider, 4, 0, QtCore.Qt.AlignTop)
+        grid.addWidget(_speedSliderLabel, 4, 1, QtCore.Qt.AlignLeft)
         grid.setColumnStretch(0, 1)
         grid.setColumnStretch(1, 0)
         self.setLayout(grid)
 
-    def _makeGaugeWithLabel(self, minMax: Tuple[int,int], units: str, colorLimits: Optional[Tuple[int,int]] = None) -> Tuple[QGauge, QtWidgets.QLabel]:
+    def _makeGaugeWithLabel(
+        self,
+        minMax: Tuple[int, int],
+        units: str,
+        colorLimits: Optional[Tuple[int, int]] = None,
+    ) -> Tuple[QGauge, QtWidgets.QLabel]:
         g = QGauge()
         g.setTextVisible(False)
         g.setMinimum(minMax[0])
         g.setMaximum(minMax[1])
         if colorLimits:
-            g.setColorScheme({colorLimits[0]: Colors.GREEN.value, colorLimits[1]: Colors.YELLOW.value, minMax[1]: Colors.RED.value})
-        g.setFormat(f'%v{units}')
+            g.setColorScheme(
+                {
+                    colorLimits[0]: Colors.GREEN.value,
+                    colorLimits[1]: Colors.YELLOW.value,
+                    minMax[1]: Colors.RED.value,
+                }
+            )
+        g.setFormat(f"%v{units}")
         return (g, g.createLabel())
 
     def setTitle(self, title: str) -> None:
@@ -82,9 +105,12 @@ class ThermalUnitWidget(QtWidgets.QWidget):
         return self._speedSlider.value()
 
     def setSpeedSlider(self, value: Optional[int] = None) -> None:
-        if value is None: value = (self._speedSlider.minimum() + self._speedSlider.maximum()) // 2
-        if value < self._speedSlider.minimum(): value = self._speedSlider.minimum()
-        if value > self._speedSlider.maximum(): value = self._speedSlider.maximum()
+        if value is None:
+            value = (self._speedSlider.minimum() + self._speedSlider.maximum()) // 2
+        if value < self._speedSlider.minimum():
+            value = self._speedSlider.minimum()
+        if value > self._speedSlider.maximum():
+            value = self._speedSlider.maximum()
         self._speedSlider.setValue(value)
 
     @QtCore.Slot()
