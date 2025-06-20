@@ -1,12 +1,13 @@
 import threading
 import win32con
-from ctypes import *
-from ctypes.wintypes import *
-from PySide6.QtCore import *
+from ctypes import windll, byref
+from ctypes.wintypes import MSG
+from PySide6.QtCore import QThread, Signal
 
 G_MODE_KEY = 0x80
 
-_STOP_SIGNAL_CODE = 0x9AB10000 # This number was picked randomly
+_STOP_SIGNAL_CODE = 0x9AB10000  # This number was picked randomly
+
 
 class HotKey(QThread):
     def __init__(self, key: int, keyPressedSignal: Signal):
@@ -34,4 +35,6 @@ class HotKey(QThread):
     def stop(self):
         if self.nativeThreadId is None:
             return
-        windll.user32.PostThreadMessageW(self.nativeThreadId, win32con.WM_USER, _STOP_SIGNAL_CODE, 0)
+        windll.user32.PostThreadMessageW(
+            self.nativeThreadId, win32con.WM_USER, _STOP_SIGNAL_CODE, 0
+        )
