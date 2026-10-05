@@ -1,0 +1,29 @@
+[package]
+name = "tcc-g15"
+version = "1.6.5"
+edition = "2021"
+publish = false
+rust-version = "1.77"
+build = "rust_backend/build.rs"
+description = "Thermal Control Center for Dell G15 - native Win32 GUI (zero dependencies)"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+opt-level = "z"
+
+[lib]
+name = "tcc_backend"
+path = "rust_backend/src/lib.rs"
+
+[[bin]]
+name = "tcc-backend"
+path = "rust_backend/src/main.rs"
+
+[[bin]]
+name = "tcc-g15"
+path = "rust_backend/src/gui_main.rs"
+
+[dependencies]

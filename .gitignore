@@ -1,5 +1,8 @@
-**/__pycache__
-**/.mypy_cache
-dist
-build
-*.spec
+# Generated build and release files
+/dist/
+/build/
+/target/
+
+# Local agent settings and code index
+/.claude/
+/.codegraph/

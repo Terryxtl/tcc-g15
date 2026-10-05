@@ -37,7 +37,9 @@ Please report if it worked / didn't work for you. Your feedback is highly apprec
 - ✔️ Show GPU/CPU temperature and fan speed
 - ✔️ Semi-manual fan speed control
 - ✔️ Option to automatically enable G-mode when GPU/CPU temperature reaches critical
+- ✔️ Automatically restores the previous mode after both temperatures stay below their thresholds for 60 seconds; manually enabled G-mode stays on
 - ✔️ Support for keyboard G-mode hotkey
+- ✔️ Stays resident in the system tray; closing or minimizing the window hides it instead of exiting
 
 ## UI hints
 
@@ -50,6 +52,7 @@ Please report if it worked / didn't work for you. Your feedback is highly apprec
     G mode is On
 
 - Hover mouse pointer over a UI element to see its description
+- Closing the window minimizes it to the tray. Use **Exit** in the tray menu to quit the app.
 
 ## Limitations
 
@@ -75,15 +78,29 @@ If this alternative works out for you, you can safely remove from your PC:
 
 ## How It Works
 
-It is a PyQt-based GUI for the WMI Dell thermal control interface.
+It is a native Win32 Rust GUI (zero dependencies) for the WMI Dell thermal control interface.
 
 I have somewhat documented my findings on the WMI [here](WMI-AWCC-doc.md).
 
 ## How to Run from the Source
 
 ```
-python3 -m pip install -r ./requirements.txt
-python3 src\tcc-g15.py
+cargo run --release --bin tcc-g15
+```
+
+Requires administrator privileges for WMI access.
+
+A small backend CLI is also available for troubleshooting:
+
+```
+cargo run --release --bin tcc-backend -- info
+cargo run --release --bin tcc-backend -- detect
+```
+
+To build the installer (Inno Setup 6):
+
+```
+make-release.bat
 ```
 
 ## About the AWCC Telemetry

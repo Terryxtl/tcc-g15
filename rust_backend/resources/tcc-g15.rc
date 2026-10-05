@@ -1,0 +1,6 @@
+/* Application icon (Explorer, taskbar, Alt+Tab). */
+1 ICON "icons/gaugeIcon.ico"
+
+/* Application manifest: common controls v6 (themed controls, task dialogs),
+   per-monitor DPI awareness. 24 is RT_MANIFEST; no need for windows.h here. */
+1 24 "tcc-g15.manifest"

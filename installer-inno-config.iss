@@ -6,6 +6,7 @@
 #define MyAppPublisher "AlexIII"
 #define MyAppURL "https://github.com/AlexIII/tcc-g15"
 #define MyAppExeName "tcc-g15.exe"
+#define MyAutorunTask "TCC_G15"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -21,11 +22,15 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=.\LICENSE
-; Uncomment the following line to run in non administrative install mode (install for current user only.)
-;PrivilegesRequired=lowest
+PrivilegesRequired=admin
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+MinVersion=10.0
+CloseApplications=yes
 OutputDir=.\dist
 OutputBaseFilename="tcc-g15-installer-{#MyAppVersion}"
 SetupIconFile=.\icons\gaugeIcon.ico
+UninstallDisplayIcon={app}\icons\gaugeIcon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -35,18 +40,24 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+Name: "autorun"; Description: "Start automatically when I log on"; GroupDescription: "Startup"; Flags: checkedonce
 
 [Files]
 Source: ".\dist\tcc-g15\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\dist\tcc-g15\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ".\dist\tcc-g15\icons\*"; DestDir: "{app}\icons"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; AfterInstall: SetElevationBit('{autoprograms}\{#MyAppName}.lnk')
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; AfterInstall: SetElevationBit('{autodesktop}\{#MyAppName}.lnk')
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--install-autorun"; StatusMsg: "Enabling start on logon..."; Tasks: autorun; Flags: runhidden waituntilterminated
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--quit"; RunOnceId: "QuitTcc"; Flags: runhidden waituntilterminated
+Filename: "{sys}\schtasks.exe"; Parameters: "/delete /tn ""{#MyAutorunTask}"" /f"; RunOnceId: "DelTccTask"; Flags: runhidden
 
 [Code]
 procedure SetElevationBit(Filename: string);
@@ -68,4 +79,16 @@ begin
   finally
     Stream.Free;
   end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+  Exe: String;
+begin
+  NeedsRestart := False;
+  Exe := ExpandConstant('{app}\{#MyAppExeName}');
+  if FileExists(Exe) then
+    Exec(Exe, '--quit', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := '';
 end;
